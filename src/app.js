@@ -58,9 +58,9 @@ function reset(mode) {
       : getScreeningQuestions();
 }
 
-function appFrame(content, active = "home") {
+function appFrame(content, active = "home", screenClass = "") {
   return `
-    <section class="app-screen">
+    <section class="app-screen ${screenClass}">
       <header class="app-header">
         <button class="brand-button" data-action="home">
           <img src="./assets/icon.png" alt="" />
@@ -132,7 +132,7 @@ function renderQuestion() {
     </section>
   `;
 
-  app.innerHTML = appFrame(content, "home");
+  app.innerHTML = appFrame(content, "home", "quiz-screen");
   trackScreen(state.mode === "trial" ? "trial_question" : "check_question");
 }
 
@@ -232,7 +232,7 @@ function renderFeedback(question, isCorrect) {
     </section>
   `;
 
-  app.innerHTML = appFrame(content, "home");
+  app.innerHTML = appFrame(content, "home", "quiz-screen feedback-screen");
   trackScreen(isCorrect ? "feedback_correct" : "feedback_wrong");
 }
 
