@@ -99,6 +99,7 @@ function renderHome() {
       <div class="home-actions">
         <button class="primary" data-action="start-trial">5問だけ試す</button>
         <button class="secondary" data-action="start-check">2〜5分で数学力チェック</button>
+        <a class="primary store-cta home-store-cta" data-action="store-click" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">iOSアプリで続きを練習</a>
       </div>
     </section>
   `;

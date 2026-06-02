@@ -204,6 +204,30 @@ h1 {
   animation: soft-fade-up 420ms ease-out both 160ms;
 }
 
+.home-store-cta {
+  grid-column: 1 / -1;
+  min-height: 70px;
+  border: 3px solid rgba(255, 255, 255, 0.86);
+  box-shadow:
+    0 18px 34px rgba(53, 189, 98, 0.28),
+    0 6px 14px rgba(42, 77, 67, 0.12);
+  animation: cta-scale-pulse 1.7s ease-in-out infinite;
+}
+
+.home-store-cta::before {
+  content: "iOS";
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  height: 28px;
+  margin-right: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 950;
+}
+
 .quiz-page,
 .report-page {
   display: grid;
@@ -547,7 +571,9 @@ h1 {
   box-shadow:
     0 18px 34px rgba(53, 189, 98, 0.28),
     0 6px 14px rgba(42, 77, 67, 0.12);
-  animation: cta-float-in 360ms cubic-bezier(0.2, 0.85, 0.28, 1.15) both 220ms;
+  animation:
+    cta-float-in 360ms cubic-bezier(0.2, 0.85, 0.28, 1.15) both 220ms,
+    cta-scale-pulse 1.7s ease-in-out infinite 900ms;
 }
 
 .report-page .store-cta::before {
@@ -1029,6 +1055,16 @@ h1 {
   to {
     opacity: 1;
     transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes cta-scale-pulse {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.055;
   }
 }
 
