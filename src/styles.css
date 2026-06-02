@@ -210,6 +210,18 @@ h1 {
   gap: 18px;
 }
 
+.report-page {
+  padding-bottom: 188px;
+}
+
+.report-page .soft-card,
+.report-page .note-card,
+.report-page .section-heading,
+.report-page .section-lead,
+.report-page .unit-card {
+  display: none;
+}
+
 .quiz-screen .quiz-page {
   height: 100%;
   min-height: 0;
@@ -521,6 +533,43 @@ h1 {
 .sticky-answer,
 .store-cta {
   width: 100%;
+}
+
+.report-page .store-cta {
+  position: fixed;
+  left: 50%;
+  bottom: 104px;
+  z-index: 12;
+  width: min(calc(var(--content-width) - 32px), calc(100vw - 28px));
+  min-height: 66px;
+  transform: translateX(-50%);
+  border: 3px solid rgba(255, 255, 255, 0.86);
+  box-shadow:
+    0 18px 34px rgba(53, 189, 98, 0.28),
+    0 6px 14px rgba(42, 77, 67, 0.12);
+  animation: cta-float-in 360ms cubic-bezier(0.2, 0.85, 0.28, 1.15) both 220ms;
+}
+
+.report-page .store-cta::before {
+  content: "iOS";
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  height: 28px;
+  margin-right: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.report-page .store-cta:hover {
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.report-page .store-cta:active {
+  transform: translateX(-50%) scale(0.98);
 }
 
 .answer-panel {
@@ -972,6 +1021,17 @@ h1 {
   }
 }
 
+@keyframes cta-float-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
 @media (max-width: 640px) {
   :root {
     --content-width: 100vw;
@@ -998,6 +1058,14 @@ h1 {
   .tab-bar {
     bottom: 12px;
     width: calc(100% - 20px);
+  }
+
+  .report-page {
+    padding-bottom: 178px;
+  }
+
+  .report-page .store-cta {
+    bottom: 94px;
   }
 }
 

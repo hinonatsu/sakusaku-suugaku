@@ -378,7 +378,7 @@ function renderReport({ title, summary, rows, memoTitle, memo }) {
         <strong>${rows[0][1] === "確認中" ? "正負の数" : rows[0][1]}</strong>
         <span>完了</span>
       </article>
-      <a class="primary store-cta" data-action="store-click" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">アプリで続きを練習</a>
+      <a class="primary store-cta" data-action="store-click" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">iOSアプリで続きを練習</a>
     </section>
   `;
 
