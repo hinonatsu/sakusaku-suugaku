@@ -1,4 +1,4 @@
-import { questions } from "./data/questions.js";
+import { createQuestionPool } from "./data/questions.js";
 
 const APP_STORE_URL =
   "https://apps.apple.com/jp/app/サクサク数学-中学生1年生向けスキマ時間数学アプリ/id6764301338";
@@ -6,23 +6,13 @@ const app = document.querySelector("#app");
 
 const state = {
   mode: null,
+  questions: [],
   queue: [],
   currentIndex: 0,
   startedAt: 0,
   selectedIndex: null,
   answers: []
 };
-
-const screeningTags = [
-  "fraction",
-  "signed-number",
-  "expression",
-  "linear-equation",
-  "proportion",
-  "simultaneous-equation",
-  "linear-function",
-  "expansion"
-];
 
 function trackEvent(eventName, params = {}) {
   if (typeof window.gtag !== "function") return;
@@ -41,21 +31,26 @@ function sample(items, count) {
   return [...items].sort(() => Math.random() - 0.5).slice(0, count);
 }
 
-function getScreeningQuestions() {
-  return screeningTags
-    .map((tag) => questions.find((question) => question.tags.includes(tag)))
-    .filter(Boolean);
+function getScreeningQuestions(pool) {
+  const byUnit = new Map();
+  for (const question of sample(pool, pool.length)) {
+    if (!byUnit.has(question.unit)) byUnit.set(question.unit, question);
+  }
+
+  const mixedUnits = sample([...byUnit.values()], 10);
+  return mixedUnits.length >= 10 ? mixedUnits : sample(pool, 10);
 }
 
 function reset(mode) {
   state.mode = mode;
+  state.questions = createQuestionPool();
   state.currentIndex = 0;
   state.selectedIndex = null;
   state.answers = [];
   state.queue =
     mode === "trial"
-      ? sample(questions.filter((question) => question.difficulty <= 2), 5)
-      : getScreeningQuestions();
+      ? sample(state.questions.filter((question) => question.difficulty <= 2), 5)
+      : getScreeningQuestions(state.questions);
 }
 
 function appFrame(content, active = "home", screenClass = "") {
@@ -182,7 +177,7 @@ function maybeAddBranchQuestion(question, isCorrect, isSlow) {
   if (state.queue.length >= 15) return;
   if (isCorrect && !isSlow) return;
 
-  const next = questions.find(
+  const next = sample(state.questions, state.questions.length).find(
     (candidate) =>
       candidate.unit === question.unit &&
       candidate.id !== question.id &&
