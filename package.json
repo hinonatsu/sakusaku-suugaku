@@ -1,0 +1,10 @@
+{
+  "name": "sakusaku-suugaku",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx http-server . -c-1",
+    "build": "node scripts/build.mjs"
+  }
+}
