@@ -62,15 +62,10 @@ function appFrame(content, active = "home") {
   return `
     <section class="app-screen">
       <header class="app-header">
-        <button class="brand-button" data-action="home" aria-label="ホームへ戻る">
-          <img src="./assets/app-icon.svg" alt="" />
+        <button class="brand-button" data-action="home">
+          <img src="./assets/icon.png" alt="" />
           <span>サクサク数学</span>
         </button>
-        <div class="hud-row" aria-label="学習ステータス">
-          <span class="hud-pill level"><span>★</span> Lv 2</span>
-          <span class="hud-pill gem">◆ 217</span>
-          <span class="hud-pill heart">♥ ${active === "review" ? "5" : "8"}</span>
-        </div>
       </header>
       <div class="app-content">${content}</div>
       <nav class="tab-bar" aria-label="メインナビゲーション">
@@ -94,9 +89,9 @@ function tabButton(id, icon, label, active, badge = "") {
 
 function renderHome() {
   app.innerHTML = `
-    <section class="home-page math-doodles">
+    <section class="home-page">
       <div class="home-copy">
-        <img class="home-icon" src="./assets/app-icon.svg" alt="サクサク数学のアイコン" />
+        <img class="home-icon" src="./assets/icon.png" alt="サクサク数学のアイコン" />
         <p class="eyebrow">中学数学を、スマホでサクサク。</p>
         <h1>毎日の数学を<br>もっとワクワクに</h1>
         <p class="lead">5問だけ試すか、2〜5分で今のつまずきをチェックできます。</p>
@@ -104,11 +99,6 @@ function renderHome() {
       <div class="home-actions">
         <button class="primary" data-action="start-trial">5問だけ試す</button>
         <button class="secondary" data-action="start-check">2〜5分で数学力チェック</button>
-      </div>
-      <div class="feature-grid" aria-label="特徴">
-        <article><strong>選択式</strong><span>テンポよく解ける</span></article>
-        <article><strong>解説つき</strong><span>間違えても復習できる</span></article>
-        <article><strong>診断</strong><span>つまずき単元を確認</span></article>
       </div>
     </section>
   `;
@@ -127,7 +117,6 @@ function renderQuestion() {
       <div class="quiz-head">
         <button class="round-close" data-action="home" aria-label="終了">×</button>
         <strong>${state.currentIndex + 1}/${total}</strong>
-        <span class="combo-pill">⚡ ${state.answers.filter((answer) => answer.isCorrect).length} コンボ</span>
       </div>
       <div class="lesson-progress"><span style="width:${progress}%"></span></div>
       <div class="question-card">
@@ -138,11 +127,6 @@ function renderQuestion() {
             .map((choice, index) => `<button class="choice" data-answer="${index}">${choice}</button>`)
             .join("")}
         </div>
-      </div>
-      <div class="combo-timer">
-        <div><span>↻ コンボ残り</span><strong>${Math.max(18, question.estimatedTimeSec + 8)} 秒</strong></div>
-        <i><b></b></i>
-        <p>時間内に正解するとコンボ。あせらず、まず正しく解こう</p>
       </div>
       <button class="primary sticky-answer" data-action="confirm" disabled>この答えでOK</button>
     </section>
@@ -217,7 +201,6 @@ function renderFeedback(question, isCorrect) {
       <div class="quiz-head">
         <button class="round-close" data-action="home" aria-label="終了">×</button>
         <strong>${state.currentIndex + 1}/${state.mode === "trial" ? 5 : 10}</strong>
-        <span class="combo-pill">⚡ ${state.answers.filter((answer) => answer.isCorrect).length} コンボ</span>
       </div>
       <div class="lesson-progress"><span style="width:${progress}%"></span></div>
       <div class="question-card">
