@@ -2,6 +2,7 @@ import { createQuestionPool } from "./data/questions.js";
 
 const APP_STORE_URL =
   "https://apps.apple.com/jp/app/サクサク数学-中学生1年生向けスキマ時間数学アプリ/id6764301338";
+const TRIAL_QUESTION_COUNT = 3;
 const app = document.querySelector("#app");
 
 const state = {
@@ -49,7 +50,7 @@ function reset(mode) {
   state.answers = [];
   state.queue =
     mode === "trial"
-      ? sample(state.questions.filter((question) => question.difficulty <= 2), 5)
+      ? sample(state.questions.filter((question) => question.difficulty <= 2), TRIAL_QUESTION_COUNT)
       : getScreeningQuestions(state.questions);
 }
 
@@ -89,10 +90,10 @@ function renderHome() {
         <img class="home-icon" src="./assets/icon.png" alt="サクサク数学のアイコン" />
         <p class="eyebrow">中学数学を、スマホでサクサク。</p>
         <h1>毎日の数学を<br>もっとワクワクに</h1>
-        <p class="lead">5問だけ試すか、2〜5分で今のつまずきをチェックできます。</p>
+        <p class="lead">3問だけ試すか、2〜5分で今のつまずきをチェックできます。</p>
       </div>
       <div class="home-actions">
-        <button class="primary" data-action="start-trial">5問だけ試す</button>
+        <button class="primary" data-action="start-trial">3問だけ試す</button>
         <button class="secondary" data-action="start-check">2〜5分で数学力チェック</button>
         <a class="primary store-cta home-store-cta" data-action="store-click" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">iOSアプリで続きを練習</a>
       </div>
@@ -103,7 +104,7 @@ function renderHome() {
 
 function renderQuestion() {
   const question = state.queue[state.currentIndex];
-  const total = state.mode === "trial" ? 5 : Math.max(state.queue.length, 10);
+  const total = state.mode === "trial" ? TRIAL_QUESTION_COUNT : Math.max(state.queue.length, 10);
   const progress = Math.min(((state.currentIndex + 1) / total) * 100, 100);
   state.startedAt = performance.now();
   state.selectedIndex = null;
@@ -190,13 +191,13 @@ function maybeAddBranchQuestion(question, isCorrect, isSlow) {
 function renderFeedback(question, isCorrect) {
   const selectedChoice = question.choices[state.selectedIndex];
   const correctChoice = question.choices[question.answerIndex];
-  const progress = Math.min(((state.currentIndex + 1) / (state.mode === "trial" ? 5 : 10)) * 100, 100);
+  const progress = Math.min(((state.currentIndex + 1) / (state.mode === "trial" ? TRIAL_QUESTION_COUNT : 10)) * 100, 100);
 
   const content = `
     <section class="quiz-page feedback-page">
       <div class="quiz-head">
         <button class="round-close" data-action="home" aria-label="終了">×</button>
-        <strong>${state.currentIndex + 1}/${state.mode === "trial" ? 5 : 10}</strong>
+        <strong>${state.currentIndex + 1}/${state.mode === "trial" ? TRIAL_QUESTION_COUNT : 10}</strong>
       </div>
       <div class="lesson-progress"><span style="width:${progress}%"></span></div>
       <div class="question-card">
@@ -235,7 +236,7 @@ function renderFeedback(question, isCorrect) {
 function nextQuestion() {
   state.currentIndex += 1;
 
-  if (state.mode === "trial" && state.currentIndex >= 5) {
+  if (state.mode === "trial" && state.currentIndex >= TRIAL_QUESTION_COUNT) {
     renderTrialResult();
     return;
   }
