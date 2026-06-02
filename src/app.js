@@ -24,6 +24,19 @@ const screeningTags = [
   "expansion"
 ];
 
+function trackEvent(eventName, params = {}) {
+  if (typeof window.gtag !== "function") return;
+  window.gtag("event", eventName, params);
+}
+
+function trackScreen(screenName) {
+  trackEvent("screen_view", {
+    app_name: "sakusaku_suugaku_web",
+    screen_name: screenName
+  });
+}
+
+
 function sample(items, count) {
   return [...items].sort(() => Math.random() - 0.5).slice(0, count);
 }
@@ -47,17 +60,19 @@ function reset(mode) {
 
 function appFrame(content, active = "home") {
   return `
-    <section class="phone-screen">
-      <header class="status-bar">
-        <div class="dynamic-island" aria-hidden="true"></div>
-        <div class="hud-row">
+    <section class="app-screen">
+      <header class="app-header">
+        <button class="brand-button" data-action="home" aria-label="ホームへ戻る">
+          <img src="./assets/app-icon.svg" alt="" />
+          <span>サクサク数学</span>
+        </button>
+        <div class="hud-row" aria-label="学習ステータス">
           <span class="hud-pill level"><span>★</span> Lv 2</span>
-          <span class="hud-exp">EXP <i><b></b></i> 26/1,000</span>
           <span class="hud-pill gem">◆ 217</span>
           <span class="hud-pill heart">♥ ${active === "review" ? "5" : "8"}</span>
         </div>
       </header>
-      <div class="screen-body">${content}</div>
+      <div class="app-content">${content}</div>
       <nav class="tab-bar" aria-label="メインナビゲーション">
         ${tabButton("home", "⌂", "ホーム", active)}
         ${tabButton("review", "↻", "解き直し", active, "3")}
@@ -79,24 +94,25 @@ function tabButton(id, icon, label, active, badge = "") {
 
 function renderHome() {
   app.innerHTML = `
-    <section class="promo-home math-doodles">
-      <div class="hero-copy">
-        <h1>毎日の数学を<br>もっと<br>ワクワクに</h1>
+    <section class="home-page math-doodles">
+      <div class="home-copy">
+        <img class="home-icon" src="./assets/app-icon.svg" alt="サクサク数学のアイコン" />
+        <p class="eyebrow">中学数学を、スマホでサクサク。</p>
+        <h1>毎日の数学を<br>もっとワクワクに</h1>
+        <p class="lead">5問だけ試すか、2〜5分で今のつまずきをチェックできます。</p>
       </div>
-      <div class="red-panda" aria-label="レッサーパンダのキャラクター">
-        <span class="ear left"></span><span class="ear right"></span>
-        <span class="brow left"></span><span class="brow right"></span>
-        <span class="eye left"></span><span class="eye right"></span>
-        <span class="muzzle"></span><span class="nose"></span><span class="smile"></span>
-      </div>
-      <p class="blue-line">中学1年生の全範囲を収録</p>
-      <div class="diagonal-banner"><span>サクサク数学</span></div>
       <div class="home-actions">
         <button class="primary" data-action="start-trial">5問だけ試す</button>
         <button class="secondary" data-action="start-check">2〜5分で数学力チェック</button>
       </div>
+      <div class="feature-grid" aria-label="特徴">
+        <article><strong>選択式</strong><span>テンポよく解ける</span></article>
+        <article><strong>解説つき</strong><span>間違えても復習できる</span></article>
+        <article><strong>診断</strong><span>つまずき単元を確認</span></article>
+      </div>
     </section>
   `;
+  trackScreen("home");
 }
 
 function renderQuestion() {
@@ -133,6 +149,7 @@ function renderQuestion() {
   `;
 
   app.innerHTML = appFrame(content, "home");
+  trackScreen(state.mode === "trial" ? "trial_question" : "check_question");
 }
 
 function hintFor(unit) {
@@ -233,6 +250,7 @@ function renderFeedback(question, isCorrect) {
   `;
 
   app.innerHTML = appFrame(content, "home");
+  trackScreen(isCorrect ? "feedback_correct" : "feedback_wrong");
 }
 
 function nextQuestion() {
@@ -377,11 +395,12 @@ function renderReport({ title, summary, rows, memoTitle, memo }) {
         <strong>${rows[0][1] === "確認中" ? "正負の数" : rows[0][1]}</strong>
         <span>完了</span>
       </article>
-      <a class="primary store-cta" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">アプリで続きを練習</a>
+      <a class="primary store-cta" data-action="store-click" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">アプリで続きを練習</a>
     </section>
   `;
 
   app.innerHTML = appFrame(content, "profile");
+  trackScreen("report");
 }
 
 app.addEventListener("click", (event) => {
@@ -389,13 +408,21 @@ app.addEventListener("click", (event) => {
   if (!target) return;
 
   if (target.dataset.action === "start-trial") {
+    trackEvent("start_trial");
     reset("trial");
     renderQuestion();
   }
 
   if (target.dataset.action === "start-check") {
+    trackEvent("start_check");
     reset("check");
     renderQuestion();
+  }
+
+  if (target.dataset.action === "store-click") {
+    trackEvent("store_click", {
+      link_url: APP_STORE_URL
+    });
   }
 
   if (target.dataset.action === "home" || target.dataset.action?.startsWith("tab-")) {
