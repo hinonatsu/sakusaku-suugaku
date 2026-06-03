@@ -505,8 +505,10 @@ h1 {
   font-size: clamp(17px, 3vw, 20px);
   font-weight: 950;
   cursor: pointer;
+  transform-origin: center center;
   transition:
     transform 160ms ease,
+    scale 160ms ease,
     box-shadow 160ms ease,
     opacity 160ms ease,
     background-color 160ms ease;
@@ -1050,11 +1052,11 @@ h1 {
 @keyframes cta-float-in {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(18px) scale(0.98);
+    transform: translateX(-50%) translateY(18px);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
+    transform: translateX(-50%) translateY(0);
   }
 }
 

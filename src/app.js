@@ -43,6 +43,17 @@ function uniqueQuestionsByText(items) {
   return [...questions.values()];
 }
 
+function shuffleQuestionChoices(question) {
+  const choices = question.choices.map((choice, index) => ({ choice, index }));
+  const shuffled = sample(choices, choices.length);
+
+  return {
+    ...question,
+    choices: shuffled.map(({ choice }) => choice),
+    answerIndex: shuffled.findIndex(({ index }) => index === question.answerIndex)
+  };
+}
+
 function getScreeningQuestions(pool) {
   const byUnit = new Map();
   for (const question of sample(pool, pool.length)) {
@@ -100,7 +111,7 @@ function unitLabel(unit) {
 
 function reset(mode) {
   state.mode = mode;
-  state.questions = createQuestionPool();
+  state.questions = createQuestionPool().map(shuffleQuestionChoices);
   state.currentIndex = 0;
   state.selectedIndex = null;
   state.answers = [];
