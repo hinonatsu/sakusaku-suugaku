@@ -231,6 +231,7 @@ function renderResult() {
       </div>
       <div class="home-actions single-action">
         <button class="primary" data-action="start-trial">もう一度3問だけ試す</button>
+        <a class="primary store-cta home-store-cta" data-action="store-click" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">アプリを試す</a>
       </div>
     </section>
   `;
