@@ -573,9 +573,7 @@ h1 {
   box-shadow:
     0 18px 34px rgba(53, 189, 98, 0.28),
     0 6px 14px rgba(42, 77, 67, 0.12);
-  animation:
-    cta-float-in 360ms cubic-bezier(0.2, 0.85, 0.28, 1.15) both 220ms,
-    cta-scale-pulse 1.7s ease-in-out infinite 900ms;
+  animation: report-cta-fade-in 240ms ease-out both 220ms;
 }
 
 .report-page .store-cta::before {
@@ -1057,6 +1055,15 @@ h1 {
   to {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes report-cta-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
