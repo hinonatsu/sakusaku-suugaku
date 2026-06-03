@@ -30,8 +30,17 @@ function trackScreen(screenName) {
 }
 
 
+function shuffled(items) {
+  const result = [...items];
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [result[index], result[randomIndex]] = [result[randomIndex], result[index]];
+  }
+  return result;
+}
+
 function sample(items, count) {
-  return [...items].sort(() => Math.random() - 0.5).slice(0, count);
+  return shuffled(items).slice(0, count);
 }
 
 function uniqueQuestionsByText(items) {
