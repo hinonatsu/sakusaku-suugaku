@@ -3,6 +3,8 @@ import { createQuestionPool } from "./data/questions.js";
 const APP_STORE_URL =
   "https://apps.apple.com/jp/app/サクサク数学-中学生1年生向けスキマ時間数学アプリ/id6764301338";
 const TRIAL_QUESTION_COUNT = 3;
+const CHECK_BASE_QUESTION_COUNT = 10;
+const CHECK_MAX_QUESTION_COUNT = 15;
 const app = document.querySelector("#app");
 
 const state = {
@@ -32,14 +34,68 @@ function sample(items, count) {
   return [...items].sort(() => Math.random() - 0.5).slice(0, count);
 }
 
+function uniqueQuestionsByText(items) {
+  const questions = new Map();
+  for (const item of items) {
+    const key = item.question.replace(/\s+/g, "");
+    if (!questions.has(key)) questions.set(key, item);
+  }
+  return [...questions.values()];
+}
+
 function getScreeningQuestions(pool) {
   const byUnit = new Map();
   for (const question of sample(pool, pool.length)) {
     if (!byUnit.has(question.unit)) byUnit.set(question.unit, question);
   }
 
-  const mixedUnits = sample([...byUnit.values()], 10);
-  return mixedUnits.length >= 10 ? mixedUnits : sample(pool, 10);
+  const mixedUnits = sample([...byUnit.values()], CHECK_BASE_QUESTION_COUNT);
+  return mixedUnits.length >= CHECK_BASE_QUESTION_COUNT ? mixedUnits : sample(pool, CHECK_BASE_QUESTION_COUNT);
+}
+
+function checkProgressLabel() {
+  if (state.mode === "trial") return `${state.currentIndex + 1}/${TRIAL_QUESTION_COUNT}`;
+  return `${state.currentIndex + 1}問目 / 最大${CHECK_MAX_QUESTION_COUNT}問`;
+}
+
+function progressTotal() {
+  return state.mode === "trial" ? TRIAL_QUESTION_COUNT : CHECK_MAX_QUESTION_COUNT;
+}
+
+function unitLabel(unit) {
+  const labels = {
+    "math.g7.expr.literal_expressions": "文字式",
+    "math.g7.num.positive_negative": "正負の数",
+    "math.g7.stat.data_distribution": "資料の整理",
+    "math.g7.expr.linear_equations": "一次方程式",
+    "math.g7.stat.probability": "確率",
+    "math.g7.geo.plane_geometry": "平面図形",
+    "math.g7.func.proportions": "比例・反比例",
+    "math.g7.geo.solid_geometry": "空間図形",
+    "math.g7.geo.s-003": "図形",
+    "math.g8.stat.data": "データの活用",
+    "math.g8.expr.calculation": "式の計算",
+    "math.g8.func.linear_applications": "一次関数の利用",
+    "math.g8.func.linear_basic": "一次関数",
+    "math.g8.geo.parallel_congruence": "平行線と合同",
+    "math.g8.stat.probability": "確率",
+    "math.g8.geo.quadrilaterals": "四角形",
+    "math.g8.eq.simultaneous_applications": "連立方程式の利用",
+    "math.g8.eq.simultaneous_basic": "連立方程式",
+    "math.g8.geo.triangles_circles": "三角形と円",
+    "math.g8.extra.inequalities": "不等式",
+    "math.g9.geo.circle_angles": "円周角",
+    "math.g9.extra.circles": "円",
+    "math.g9.expr.calculation": "式の展開・因数分解",
+    "math.g9.geo.pythagorean": "三平方の定理",
+    "math.g9.eq.quadratic": "二次方程式",
+    "math.g9.func.quadratic": "二次関数",
+    "math.g9.geo.ratio": "線分の比",
+    "math.g9.geo.similarity": "相似",
+    "math.g9.num.square_roots": "平方根"
+  };
+
+  return labels[unit] ?? "確認問題";
 }
 
 function reset(mode) {
@@ -50,7 +106,7 @@ function reset(mode) {
   state.answers = [];
   state.queue =
     mode === "trial"
-      ? sample(state.questions.filter((question) => question.difficulty <= 2), TRIAL_QUESTION_COUNT)
+      ? sample(uniqueQuestionsByText(state.questions.filter((question) => question.difficulty <= 2)), TRIAL_QUESTION_COUNT)
       : getScreeningQuestions(state.questions);
 }
 
@@ -104,8 +160,7 @@ function renderHome() {
 
 function renderQuestion() {
   const question = state.queue[state.currentIndex];
-  const total = state.mode === "trial" ? TRIAL_QUESTION_COUNT : Math.max(state.queue.length, 10);
-  const progress = Math.min(((state.currentIndex + 1) / total) * 100, 100);
+  const progress = Math.min(((state.currentIndex + 1) / progressTotal()) * 100, 100);
   state.startedAt = performance.now();
   state.selectedIndex = null;
 
@@ -113,7 +168,7 @@ function renderQuestion() {
     <section class="quiz-page">
       <div class="quiz-head">
         <button class="round-close" data-action="home" aria-label="終了">×</button>
-        <strong>${state.currentIndex + 1}/${total}</strong>
+        <strong>${checkProgressLabel()}</strong>
       </div>
       <div class="lesson-progress"><span style="width:${progress}%"></span></div>
       <div class="question-card">
@@ -175,7 +230,7 @@ function confirmAnswer() {
 
 function maybeAddBranchQuestion(question, isCorrect, isSlow) {
   if (state.mode !== "check") return;
-  if (state.queue.length >= 15) return;
+  if (state.queue.length >= CHECK_MAX_QUESTION_COUNT) return;
   if (isCorrect && !isSlow) return;
 
   const next = sample(state.questions, state.questions.length).find(
@@ -191,13 +246,13 @@ function maybeAddBranchQuestion(question, isCorrect, isSlow) {
 function renderFeedback(question, isCorrect) {
   const selectedChoice = question.choices[state.selectedIndex];
   const correctChoice = question.choices[question.answerIndex];
-  const progress = Math.min(((state.currentIndex + 1) / (state.mode === "trial" ? TRIAL_QUESTION_COUNT : 10)) * 100, 100);
+  const progress = Math.min(((state.currentIndex + 1) / progressTotal()) * 100, 100);
 
   const content = `
     <section class="quiz-page feedback-page">
       <div class="quiz-head">
         <button class="round-close" data-action="home" aria-label="終了">×</button>
-        <strong>${state.currentIndex + 1}/${state.mode === "trial" ? TRIAL_QUESTION_COUNT : 10}</strong>
+        <strong>${checkProgressLabel()}</strong>
       </div>
       <div class="lesson-progress"><span style="width:${progress}%"></span></div>
       <div class="question-card">
@@ -251,7 +306,7 @@ function nextQuestion() {
 
 function shouldFinishCheck() {
   if (state.currentIndex < state.queue.length) return false;
-  return state.answers.length >= 10 || state.queue.length >= 15;
+  return state.answers.length >= CHECK_BASE_QUESTION_COUNT || state.queue.length >= CHECK_MAX_QUESTION_COUNT;
 }
 
 function scoreAnswer(answer) {
@@ -297,10 +352,12 @@ function estimateLevel() {
 }
 
 function weaknessType(unstableUnits) {
-  if (unstableUnits.some((unit) => unit.includes("正負"))) return "符号ミス型";
-  if (unstableUnits.some((unit) => unit.includes("文字式"))) return "文字式あいまい型";
-  if (unstableUnits.some((unit) => unit.includes("方程式"))) return "方程式あと一歩型";
-  if (unstableUnits.some((unit) => unit.includes("関数") || unit.includes("比例"))) return "関数・グラフ苦手型";
+  if (unstableUnits.some((unit) => unit.includes("equation") || unit.includes(".eq."))) return "方程式あと一歩型";
+  if (unstableUnits.some((unit) => unit.includes(".num."))) return "符号・数の確認型";
+  if (unstableUnits.some((unit) => unit.includes(".expr."))) return "式の整理確認型";
+  if (unstableUnits.some((unit) => unit.includes(".func."))) return "関数・グラフ確認型";
+  if (unstableUnits.some((unit) => unit.includes(".geo."))) return "図形確認型";
+  if (unstableUnits.some((unit) => unit.includes(".stat."))) return "データ・確率確認型";
   if (state.answers.some((answer) => answer.isSlow)) return "計算スピード確認型";
   return "基礎安定型";
 }
@@ -308,7 +365,7 @@ function weaknessType(unstableUnits) {
 function renderTrialResult() {
   const correctCount = state.answers.filter((answer) => answer.isCorrect).length;
   const { unstable } = summarizeUnits();
-  const recommended = unstable[0] ?? "一次方程式";
+  const recommended = unstable[0] ? unitLabel(unstable[0]) : "一次方程式";
 
   renderReport({
     title: "学習レポート",
@@ -326,17 +383,22 @@ function renderTrialResult() {
 
 function renderCheckResult() {
   const { stable, unstable } = summarizeUnits();
+  const reachedLevel = estimateLevel();
+  const correctRate = Math.round((state.answers.filter((answer) => answer.isCorrect).length / state.answers.length) * 100);
+  const stableUnit = stable[0] ? unitLabel(stable[0]) : "確認中";
+  const reviewUnit = unstable[0] ? unitLabel(unstable[0]) : "大きなつまずきなし";
+
   renderReport({
     title: "学習レポート",
-    summary: `今回の到達目安は ${estimateLevel()} です。`,
+    summary: `今回の到達目安は ${reachedLevel} です。`,
     rows: [
-      ["安定", stable[0] ?? "確認中"],
-      ["到達目安", estimateLevel()],
+      ["安定", stableUnit],
+      ["到達目安", reachedLevel],
       ["苦手タイプ", weaknessType(unstable)],
-      ["正答率", `${Math.round((state.answers.filter((answer) => answer.isCorrect).length / state.answers.length) * 100)}%`]
+      ["正答率", `${correctRate}%`]
     ],
     memoTitle: "苦手メモ",
-    memo: unstable.length ? `${unstable[0]}から復習するのがおすすめです。` : "大きなつまずきは少なめです。"
+    memo: unstable.length ? `${reviewUnit}から復習するのがおすすめです。` : "大きなつまずきは少なめです。"
   });
 }
 
@@ -372,7 +434,7 @@ function renderReport({ title, summary, rows, memoTitle, memo }) {
       <h3 class="section-heading">単元別レポート</h3>
       <p class="section-lead">単元ごとの完了数と正答率を確認できます</p>
       <article class="unit-card">
-        <strong>${rows[0][1] === "確認中" ? "正負の数" : rows[0][1]}</strong>
+        <strong>${rows[0][1] === "確認中" ? "基礎の確認" : rows[0][1]}</strong>
         <span>完了</span>
       </article>
       <a class="primary store-cta" data-action="store-click" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">iOSアプリで続きを練習</a>
