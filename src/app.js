@@ -81,13 +81,25 @@ function renderHome() {
       <div class="home-copy">
         <img class="home-icon" src="./assets/icon.png" alt="サクサク数学のアイコン" />
         <p class="eyebrow">中学数学をサクッと体験</p>
-        <h1>3問だけ<br>試してみよう</h1>
-        <p class="lead">スマホでテンポよく解ける、サクサク数学のミニ体験です。</p>
+        <h1>サクサク数学</h1>
+        <p class="lead">中学生向け数学アプリの3問ミニ体験。スマホでテンポよく解けます。</p>
       </div>
       <div class="home-actions single-action">
         <button class="primary" data-action="start-trial">3問だけ試す</button>
         <a class="primary store-cta home-store-cta" data-action="store-click" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">アプリを試す</a>
       </div>
+      <section class="seo-content" aria-labelledby="seo-heading">
+        <h2 id="seo-heading">中学数学の計算練習・定期テスト対策に</h2>
+        <p>
+          サクサク数学は、中1数学を中心に、正負の数、文字式、方程式、比例・反比例、平面図形、データの活用をスキマ時間で復習できる学習アプリです。
+          短い問題をテンポよく解くことで、中学生の数学の苦手克服、基礎固め、定期テスト前の確認に役立ちます。
+        </p>
+        <ul>
+          <li>中学数学の基礎問題をスマホで手軽に練習</li>
+          <li>計算問題、文章題、図形問題を3問だけ無料体験</li>
+          <li>中学生の毎日の復習やテスト勉強に使いやすい設計</li>
+        </ul>
+      </section>
     </section>
   `;
   trackScreen("home");

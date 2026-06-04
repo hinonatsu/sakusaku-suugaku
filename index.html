@@ -3,13 +3,73 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#35bd62" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta
       name="description"
-      content="中学数学をスマホでサクッと体験。3問だけ試せるサクサク数学のミニ版です。"
+      content="サクサク数学は、中学数学をスマホでテンポよく練習できる学習アプリです。中1数学の正負の数、文字式、方程式、比例・反比例、図形などを3問だけ無料体験できます。"
     />
-    <title>サクサク数学</title>
+    <meta
+      name="keywords"
+      content="サクサク数学, 中学数学, 中学生 数学, 中1数学, 数学アプリ, 計算練習, 定期テスト対策, 方程式, 文字式, 正負の数"
+    />
+    <meta property="og:site_name" content="サクサク数学" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:url" content="https://hinonatsu.github.io/sakusaku-suugaku/" />
+    <meta property="og:title" content="サクサク数学｜中学数学をスキマ時間に練習できる数学アプリ" />
+    <meta
+      property="og:description"
+      content="中学数学の計算練習・苦手克服・定期テスト対策に。サクサク数学の3問ミニ体験で、文字式や方程式などをテンポよく解けます。"
+    />
+    <meta property="og:image" content="https://hinonatsu.github.io/sakusaku-suugaku/assets/icon.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="サクサク数学｜中学数学をスキマ時間に練習" />
+    <meta
+      name="twitter:description"
+      content="中学生向け数学アプリ「サクサク数学」の3問ミニ体験。中1数学、計算練習、定期テスト対策に。"
+    />
+    <title>サクサク数学｜中学数学をスキマ時間に練習できる数学アプリ</title>
+    <link rel="canonical" href="https://hinonatsu.github.io/sakusaku-suugaku/" />
     <link rel="icon" href="./assets/icon.png" type="image/png" />
     <link rel="apple-touch-icon" href="./assets/icon.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "name": "サクサク数学",
+            "url": "https://hinonatsu.github.io/sakusaku-suugaku/",
+            "alternateName": ["Sakusaku数学", "Sakusaku Suugaku"],
+            "inLanguage": "ja",
+            "description": "中学生向け数学学習アプリ「サクサク数学」のWeb体験版です。"
+          },
+          {
+            "@type": "WebApplication",
+            "name": "サクサク数学",
+            "url": "https://hinonatsu.github.io/sakusaku-suugaku/",
+            "applicationCategory": "EducationalApplication",
+            "operatingSystem": "Web, iOS",
+            "inLanguage": "ja",
+            "image": "https://hinonatsu.github.io/sakusaku-suugaku/assets/icon.png",
+            "description": "中学数学をスマホでテンポよく練習できる学習アプリ。正負の数、文字式、方程式、比例・反比例、平面図形などを3問だけ体験できます。",
+            "audience": {
+              "@type": "EducationalAudience",
+              "educationalRole": "student"
+            },
+            "educationalLevel": "中学校",
+            "learningResourceType": "practice problem",
+            "keywords": "サクサク数学, 中学数学, 中学生 数学, 中1数学, 数学アプリ, 計算練習, 定期テスト対策, 方程式, 文字式, 正負の数",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "JPY"
+            }
+          }
+        ]
+      }
+    </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-S5RYTH9VZ7"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -22,7 +82,21 @@
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
-    <main id="app" class="app-shell" aria-live="polite"></main>
+    <main id="app" class="app-shell" aria-live="polite">
+      <section class="home-page">
+        <div class="home-copy">
+          <img class="home-icon" src="./assets/icon.png" alt="サクサク数学のアイコン" />
+          <p class="eyebrow">中学数学をサクッと体験</p>
+          <h1>サクサク数学</h1>
+          <p class="lead">
+            中学生向け数学アプリの3問ミニ体験。中1数学、計算練習、方程式、文字式、定期テスト対策に使えます。
+          </p>
+        </div>
+      </section>
+    </main>
+    <noscript>
+      サクサク数学は、中学数学をスマホで練習できる学習アプリです。正負の数、文字式、方程式、比例・反比例、平面図形などの問題をテンポよく解けます。
+    </noscript>
     <script type="module" src="./src/app.js"></script>
   </body>
 </html>

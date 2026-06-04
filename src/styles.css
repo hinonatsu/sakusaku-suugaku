@@ -214,6 +214,40 @@ h1 {
   font-size: clamp(20px, 3.8vw, 26px);
 }
 
+.seo-content {
+  padding: clamp(18px, 4svh, 28px) clamp(18px, 5vw, 34px);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 12px 28px rgba(60, 80, 72, 0.08);
+  animation: soft-fade-up 420ms ease-out both 220ms;
+}
+
+.seo-content h2 {
+  margin: 0 0 10px;
+  color: var(--brown);
+  font-size: clamp(20px, 3.8vw, 28px);
+  line-height: 1.28;
+}
+
+.seo-content p,
+.seo-content li {
+  color: var(--brown-soft);
+  font-size: clamp(15px, 2.5vw, 17px);
+  font-weight: 800;
+  line-height: 1.72;
+}
+
+.seo-content p {
+  margin: 0;
+}
+
+.seo-content ul {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0 0;
+  padding-left: 1.25em;
+}
+
 .result-page .home-copy {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(232, 248, 240, 0.78)),

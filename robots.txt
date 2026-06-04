@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hinonatsu.github.io/sakusaku-suugaku/sitemap.xml
