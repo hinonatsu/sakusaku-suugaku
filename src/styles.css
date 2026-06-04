@@ -13,6 +13,7 @@
   --red: #c84830;
   --red-bright: #d84c35;
   --green: #35bd62;
+  --app-store-black: #000000;
   --gold: #dfb95a;
   --blue-note: #12aeea;
   --pink-note: #f64a86;
@@ -224,8 +225,8 @@ h1 {
   min-height: clamp(58px, 8svh, 70px);
   border: 3px solid rgba(255, 255, 255, 0.86);
   box-shadow:
-    0 18px 34px rgba(53, 189, 98, 0.28),
-    0 6px 14px rgba(42, 77, 67, 0.12);
+    0 18px 34px rgba(0, 0, 0, 0.24),
+    0 6px 14px rgba(0, 0, 0, 0.14);
   animation: cta-scale-pulse 1.7s ease-in-out infinite;
 }
 
@@ -238,7 +239,7 @@ h1 {
   margin-right: 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.92);
-  color: var(--green);
+  color: var(--app-store-black);
   font-size: 14px;
   font-weight: 950;
 }
@@ -556,8 +557,8 @@ h1 {
 
 .primary.green,
 .store-cta {
-  background: var(--green);
-  box-shadow: 0 12px 24px rgba(53, 189, 98, 0.2);
+  background: var(--app-store-black);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
 }
 
 .primary:disabled {
@@ -586,8 +587,8 @@ h1 {
   transform: translateX(-50%);
   border: 3px solid rgba(255, 255, 255, 0.86);
   box-shadow:
-    0 18px 34px rgba(53, 189, 98, 0.28),
-    0 6px 14px rgba(42, 77, 67, 0.12);
+    0 18px 34px rgba(0, 0, 0, 0.24),
+    0 6px 14px rgba(0, 0, 0, 0.14);
   animation: report-cta-fade-in 240ms ease-out both 220ms;
 }
 
@@ -600,7 +601,7 @@ h1 {
   margin-right: 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.92);
-  color: var(--green);
+  color: var(--app-store-black);
   font-size: 14px;
   font-weight: 950;
 }
