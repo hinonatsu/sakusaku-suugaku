@@ -1,6 +1,6 @@
 # サクサク数学 Web
 
-中学生向け数学学習アプリ「サクサク数学」の Web 体験版です。
+中学生向け数学学習アプリ「サクサク数学」の、3問だけその場で解ける Web 体験版です。
 
 ## 目的
 
@@ -8,15 +8,12 @@ SNS・広告・検索・共有から来たユーザーが、スマホですぐ�
 
 ## MVP 範囲
 
-- トップページ
-- 3問だけ試す
-- 2〜5分で数学力チェック
-- 分岐式の簡易診断
-- 回答時間の記録
-- 結果表示
+- スマホ優先の「3問だけ」体験
+- 中1〜中3を選べる問題出題
+- 選択式、数式入力、表の穴埋め、座標、手順並べ替え
+- 1問ごとの即時採点と解説
 - App Store 誘導
-- レスポンシブ対応
-- GitHub Pages 対応
+- レスポンシブ対応、GitHub Pages 対応
 
 ## 技術構成
 
@@ -45,12 +42,22 @@ npm run build
 
 `dist/` に GitHub Pages 公開用ファイルを出力します。
 
+## 問題バンクの更新
+
+配布用の `src/data/questions.js` はCSVから生成します。CSVのパスを明示して実行してください。
+
+```bash
+npm run questions:build -- --input C:/path/to/current_questions.csv
+```
+
+画像素材が別途必要な問題、条件不足が明記された問題、確認が必要な問題は体験版の出題対象から自動的に外れます。CSV自体は保持されるため、対応する図版を追加した後に出題対象を広げられます。
+
 ## GitHub Pages 公開
 
 1. GitHub に push する
 2. Repository Settings から Pages を開く
 3. Source を GitHub Actions または `main` ブランチの `/dist` 相当の成果物公開に設定する
-4. App Store の正式 URL が決まり次第、`src/app.js` の `APP_STORE_URL` を更新する
+4. App Store の正式 URL が変更になった場合、`src/app.js` の `APP_STORE_URL` を更新する
 
 ## 注意
 
