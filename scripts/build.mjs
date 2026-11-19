@@ -9,6 +9,8 @@ await mkdir("dist", { recursive: true });
 await cp("index.html", "dist/index.html");
 await cp("src", "dist/src", { recursive: true });
 await cp("assets", "dist/assets", { recursive: true });
+await rm("dist/src/data/questions.js", { force: true });
+await rm("dist/src/data/question-overrides.js", { force: true });
 await writeFile(
   "dist/robots.txt",
   `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`

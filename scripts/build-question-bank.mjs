@@ -1,4 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
+import { isWebQuestionPlayable } from "../src/question-validation.js";
 
 const args = process.argv.slice(2);
 const valueAfter = (flag) => {
@@ -102,7 +103,7 @@ function toQuestion(row) {
   const type = String(row.questionType ?? "").trim();
   const basicFieldsPresent = Boolean(row.questionText?.trim() && answer && row.explanation?.trim());
 
-  return {
+  const question = {
     id: row.questionId,
     grade: row.grade,
     unit: row.unitId,
@@ -125,12 +126,17 @@ function toQuestion(row) {
     stepIndex: Number(row.stepIndex || 1),
     stepCount: Number(row.stepCount || 1),
     sourceProblemId: row.sourceProblemId || "",
-    eligible:
-      basicFieldsPresent &&
-      !requiresVisual &&
-      !hasUnusableWarning(row.errorTags) &&
-      !knownExplanationIssues.has(row.questionId)
+    eligible: false
   };
+
+  question.eligible =
+    basicFieldsPresent &&
+    !requiresVisual &&
+    !hasUnusableWarning(row.errorTags) &&
+    !knownExplanationIssues.has(row.questionId) &&
+    isWebQuestionPlayable(question);
+
+  return question;
 }
 
 const raw = await readFile(input, "utf8");

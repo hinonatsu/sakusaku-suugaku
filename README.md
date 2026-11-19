@@ -37,6 +37,8 @@ npm run dev
 公開用ファイルの生成は次のコマンドで行います。
 
 ```bash
+npm test
+npm run validate:questions
 npm run build
 ```
 
@@ -50,7 +52,17 @@ npm run build
 npm run questions:build -- --input C:/path/to/current_questions.csv
 ```
 
-画像素材が別途必要な問題、条件不足が明記された問題、確認が必要な問題は体験版の出題対象から自動的に外れます。CSV自体は保持されるため、対応する図版を追加した後に出題対象を広げられます。
+画像素材が別途必要な問題、条件不足が明記された問題、確認が必要な問題に加え、現在のWeb UIで表示・入力・採点できない問題は体験版の出題対象から自動的に外れます。CSV自体は保持されるため、対応するUIや図版を追加した後に出題対象を広げられます。
+
+生成元CSVを直すまでの既知データ修正は `src/data/question-overrides.js` に集約します。修正後は `npm run validate:questions` で、各学年に十分な選択式・入力式問題が残っていることを確認してください。
+
+公開時は、全問題をブラウザへ送らず、検証済みかつ単元が偏らない体験版専用バンクを生成します。
+
+```bash
+npm run questions:trial
+```
+
+`npm run build` でも自動生成されます。公開成果物には元の巨大な問題バンクを含めません。
 
 ## GitHub Pages 公開
 

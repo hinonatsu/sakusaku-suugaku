@@ -1,4 +1,5 @@
-import { createQuestionPool, questionBankMeta } from "./data/questions.js";
+import { createQuestionPool, questionBankMeta } from "./data/web-question-bank.js";
+import { inputAnswerSpec, normalizeMathText, rendererType } from "./question-validation.js";
 
 const APP_STORE_URL =
   "https://apps.apple.com/jp/app/%E3%82%B5%E3%82%AF%E3%82%B5%E3%82%AF%E6%95%B0%E5%AD%A6-%E4%B8%AD%E5%AD%A6%E7%94%9F%E5%90%91%E3%81%91%E3%82%B9%E3%82%AD%E3%83%9E%E6%99%82%E9%96%93%E6%95%B0%E5%AD%A6%E3%82%A2%E3%83%97%E3%83%AA/id6764301338";
@@ -41,22 +42,8 @@ function shuffled(items) {
   return copied;
 }
 
-function normalizeText(value = "") {
-  return String(value)
-    .normalize("NFKC")
-    .replace(/[−ー]/g, "-")
-    .replace(/＋/g, "+")
-    .replace(/[×]/g, "*")
-    .replace(/[÷]/g, "/")
-    .replace(/[，、]/g, ",")
-    .replace(/[（]/g, "(")
-    .replace(/[）]/g, ")")
-    .replace(/\s+/g, "")
-    .toLowerCase();
-}
-
 function evaluateArithmetic(value) {
-  const normalized = normalizeText(value);
+  const normalized = normalizeMathText(value);
   if (!normalized || /[^0-9+\-*/().]/.test(normalized)) return null;
   let position = 0;
 
@@ -107,8 +94,8 @@ function evaluateArithmetic(value) {
 }
 
 function answersMatch(input, answer, requirement = "value_equivalent") {
-  const entered = normalizeText(input);
-  const expected = normalizeText(answer);
+  const entered = normalizeMathText(input);
+  const expected = normalizeMathText(answer);
   if (!entered) return false;
   if (requirement === "explicit_positive_sign" && !entered.startsWith("+")) return false;
   if (entered === expected) return true;
@@ -122,25 +109,8 @@ function displayAnswer(answer) {
   return escapeHtml(String(answer).replaceAll("§§", "、").replaceAll("-", "−"));
 }
 
-function rendererType(question) {
-  if (["multiple_choice", "signed_number_interaction", "expression_visual"].includes(question.type)) {
-    return question.choices.length >= 2 ? "choice" : "input";
-  }
-  if (["number_input", "expression_transform"].includes(question.type)) return "input";
-  if (question.type === "table_fill") return "table";
-  if (["graph_point", "graph_plot"].includes(question.type)) return "graph";
-  if (question.type === "step_ordering") return "steps";
-  return "input";
-}
-
 function isEligibleQuestion(question) {
-  if (!question.eligible) return false;
-  const kind = rendererType(question);
-  if (kind === "choice") return question.choices.length >= 2;
-  if (kind === "table") return Array.isArray(question.interaction?.rows);
-  if (kind === "graph") return question.interaction?.xMin !== undefined;
-  if (kind === "steps") return Array.isArray(question.interaction?.steps);
-  return true;
+  return question.eligible;
 }
 
 function takeQuestion(candidates, excludedIds, excludedUnits, preferredKind) {
@@ -199,7 +169,7 @@ function quizHeader() {
   return `
     <header class="quiz-header">
       <button class="icon-button" type="button" data-action="home" aria-label="体験を終了してホームへ戻る">×</button>
-      <div class="quiz-brand"><span class="mini-mark" aria-hidden="true"></span>サクサク数学</div>
+      <div class="quiz-brand"><img src="./assets/icon.png" alt="" />サクサク数学</div>
       <strong class="counter">${state.currentIndex + 1}<span>/ ${TRIAL_QUESTION_COUNT}</span></strong>
     </header>
     <div class="progress-track" aria-label="全3問中${state.currentIndex + 1}問目"><span style="width:${progress}%"></span></div>
@@ -209,29 +179,37 @@ function quizHeader() {
 function renderHome() {
   app.innerHTML = `
     <main class="landing-page">
-      <section class="hero-section">
-        <div class="brand-lockup"><span class="brand-mark" aria-hidden="true"><i></i><b></b></span><span>サクサク数学</span></div>
-        <p class="hero-kicker">中学数学を、スキマ時間に。</p>
-        <h1>3問だけ、<em>サクサク</em><br />解いてみよう。</h1>
-        <p class="hero-copy">中1〜中3の問題を、1問ずつすぐ答え合わせ。ノートなしで、今すぐ始められます。</p>
+      <header class="app-status-card">
+        <div class="brand-lockup"><img src="./assets/icon.png" alt="" /><span><strong>サクサク数学</strong><small>Web体験版</small></span></div>
+        <div class="status-pills" aria-label="アプリ体験ステータス"><span>◆ 3問</span><span>♥ 3/3</span></div>
+      </header>
+      <section class="today-card">
+        <div class="today-heading">
+          <span class="spark-icon" aria-hidden="true">✦</span>
+          <div><p>今日やること</p><h1>3問だけ、サクサク。</h1><span>1問ずつ答え合わせして、すぐにコツを確認できます。</span></div>
+          <div class="goal-ring" aria-hidden="true"><strong>0/3</strong><small>今日</small></div>
+        </div>
         <div class="grade-section" aria-label="学年を選ぶ">
-          <p>どの学年の問題を解く？</p>
+          <p>挑戦する学年</p>
           <div class="grade-picker" role="group">
             ${["中1", "中2", "中3"].map((grade) => `<button class="grade-chip ${state.grade === grade ? "is-selected" : ""}" type="button" data-grade="${grade}" aria-pressed="${state.grade === grade}">${grade}</button>`).join("")}
           </div>
         </div>
-        <button class="primary-button start-button" type="button" data-action="start">3問だけ始める <span aria-hidden="true">→</span></button>
-        <p class="time-note"><span aria-hidden="true" class="clock-dot"></span>目安 1分</p>
+        <button class="primary-button start-button" type="button" data-action="start"><span aria-hidden="true">✦</span>3問を始める</button>
+        <p class="time-note">⏱ 目安 1〜2分・登録不要</p>
       </section>
-      <section class="promise-card" aria-label="Web体験でできること">
-        <div><span class="promise-number">3</span><strong>問だけ</strong><small>短く集中</small></div>
-        <div><span class="promise-symbol">✓</span><strong>すぐ採点</strong><small>答え合わせ</small></div>
-        <div><span class="promise-symbol">!</span><strong>解説つき</strong><small>その場で理解</small></div>
+      <section class="quest-map-card" aria-label="3問体験の流れ">
+        <div class="section-title"><div><h2>今日のステージ</h2><p>${escapeHtml(state.grade)}の問題</p></div><span>体験版</span></div>
+        <div class="quest-path" aria-hidden="true">
+          <span class="quest-node is-current">1</span><i></i><span class="quest-node">2</span><i></i><span class="quest-node is-goal">✓</span>
+          <img src="./assets/character.png" alt="" />
+        </div>
+        <div class="feature-row"><span>✓ すぐ採点</span><span>↻ 解き直せる</span><span>✦ 解説つき</span></div>
       </section>
       <section class="app-bridge">
-        <p>Webでは3問。続きはアプリで。</p>
-        <span>中1〜中3の数学を毎日少しずつ。</span>
-        <a class="text-link" data-action="store" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">App Storeを見る <span aria-hidden="true">→</span></a>
+        <img src="./assets/character.png" alt="" />
+        <div><p>続きはアプリで。</p><span>中1〜中3の数学を、毎日少しずつ。</span></div>
+        <a class="text-link" data-action="store" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">App Storeへ</a>
       </section>
     </main>
   `;
@@ -248,30 +226,31 @@ function hintFor(question) {
 }
 
 function renderChoice(question) {
+  const selectedIndex = state.draft?.selectedChoice;
   return `<div class="answer-list choice-list" role="group" aria-label="答えを選ぶ">${question.choices
     .map(
       (choice, index) =>
-        `<button class="answer-choice" type="button" data-choice="${index}"><span class="choice-letter">${String.fromCharCode(65 + index)}</span><span>${escapeHtml(choice)}</span></button>`
+        `<button class="answer-choice ${selectedIndex === index ? "is-selected" : ""}" type="button" data-choice="${index}" aria-pressed="${selectedIndex === index}"><span>${escapeHtml(choice)}</span><b aria-hidden="true">${selectedIndex === index ? "✓" : ""}</b></button>`
     )
     .join("")}</div>`;
 }
 
 function keypadKeys(question) {
-  const algebra = question.type === "expression_transform";
-  return algebra
-    ? ["7", "8", "9", "⌫", "4", "5", "6", "−", "1", "2", "3", "+", "0", "x", "(", ")", "/", "採点"]
-    : ["7", "8", "9", "⌫", "4", "5", "6", "−", "1", "2", "3", "+", "0", ".", "/", "採点"];
+  const base = ["7", "8", "9", "⌫", "4", "5", "6", "−", "1", "2", "3", "+", "0", ".", "/"];
+  const symbols = [...new Set(inputAnswerSpec(question).expectedInput.match(/[a-z^=π√()]/g) ?? [])];
+  return [...base, ...symbols];
 }
 
 function renderInput(question) {
   const value = state.draft?.value ?? "";
+  const { unit } = inputAnswerSpec(question);
   return `
     <div class="input-answer">
       <label class="sr-only" for="math-answer">答え</label>
-      <div class="math-display" id="math-answer" aria-live="polite">${value ? escapeHtml(value) : "答えを入力"}</div>
+      <div class="math-display" id="math-answer" aria-live="polite"><span>${value ? escapeHtml(value) : "答えを入力"}</span>${unit ? `<b class="math-unit">${escapeHtml(unit)}</b>` : ""}</div>
       <div class="keypad" aria-label="数学キーパッド">
         ${keypadKeys(question)
-          .map((key) => `<button class="key ${key === "採点" ? "key-submit" : ""}" type="button" data-key="${escapeHtml(key)}">${escapeHtml(key)}</button>`)
+          .map((key) => `<button class="key" type="button" data-key="${escapeHtml(key)}">${escapeHtml(key)}</button>`)
           .join("")}
       </div>
     </div>`;
@@ -291,7 +270,7 @@ function renderTable(question) {
           return `<td><button type="button" data-table-field="${blankIndex}" class="table-blank ${active === blankIndex ? "is-active" : ""}">${values[blankIndex] ? escapeHtml(values[blankIndex]) : "？"}</button></td>`;
         }).join("")}</tr>`)
         .join("")}</tbody></table></div>
-      <div class="keypad compact-keypad">${["7", "8", "9", "⌫", "4", "5", "6", "−", "1", "2", "3", "+", "0", ".", "/", "採点"].map((key) => `<button class="key ${key === "採点" ? "key-submit" : ""}" type="button" data-key="${key}">${key}</button>`).join("")}</div>
+      <div class="keypad compact-keypad">${["7", "8", "9", "⌫", "4", "5", "6", "−", "1", "2", "3", "+", "0", ".", "/"].map((key) => `<button class="key" type="button" data-key="${key}">${key}</button>`).join("")}</div>
     </div>`;
 }
 
@@ -338,14 +317,13 @@ function renderGraph(question) {
         <svg viewBox="0 0 ${width} ${height}" aria-hidden="true"><g class="grid-lines">${grid.join("")}</g><g class="axis-lines"><line x1="${toX(0)}" y1="${pad}" x2="${toX(0)}" y2="${height - pad}"/><line x1="${pad}" y1="${toY(0)}" x2="${width - pad}" y2="${toY(0)}"/></g><g class="grid-labels">${labels.join("")}<text x="${width - 14}" y="${toY(0) - 8}">x</text><text x="${toX(0) + 8}" y="${pad + 10}">y</text></g></svg>
         ${points.join("")}
       </div>
-      ${question.type === "graph_plot" ? `<button class="wide-secondary" type="button" data-action="confirm-graph" ${selected.length === answerPoints.length ? "" : "disabled"}>この点で答え合わせ</button>` : ""}
     </div>`;
 }
 
 function renderSteps(question) {
   const data = question.interaction;
   const selected = state.draft?.steps ?? [];
-  const options = shuffled([...data.steps, ...(data.distractors ?? [])]);
+  const options = state.draft?.stepOptions ?? [...data.steps, ...(data.distractors ?? [])];
   const sequence = selected.length
     ? selected.map((step, index) => `<button type="button" class="sequence-step" data-remove-step="${index}"><span>${index + 1}</span>${escapeHtml(step)}</button>`).join("")
     : `<p class="sequence-placeholder">式を順に選ぼう</p>`;
@@ -354,7 +332,6 @@ function renderSteps(question) {
       <div class="sequence-board">${sequence}</div>
       <p class="mini-instruction">下のカードを順番にタップ</p>
       <div class="step-options">${options.map((option) => `<button type="button" class="step-option ${selected.includes(option) ? "is-used" : ""}" data-step-option="${escapeHtml(option)}" ${selected.includes(option) ? "disabled" : ""}>${escapeHtml(option)}</button>`).join("")}</div>
-      <button class="wide-secondary" type="button" data-action="confirm-steps" ${selected.length === data.steps.length ? "" : "disabled"}>この順番で答え合わせ</button>
     </div>`;
 }
 
@@ -368,11 +345,38 @@ function renderQuestionBody(question) {
   return renderInput(question);
 }
 
-function renderQuestion() {
+function answerIsReady(question) {
+  const kind = rendererType(question);
+  if (kind === "choice") return Number.isInteger(state.draft?.selectedChoice);
+  if (kind === "input") return Boolean(state.draft?.value);
+  if (kind === "table") {
+    const expectedCount = String(question.answer).split("§§").length;
+    const values = state.draft?.values ?? [];
+    return values.length === expectedCount && values.every(Boolean);
+  }
+  if (kind === "graph") {
+    const expectedCount = String(question.answer).split("§§").length;
+    return (state.draft?.points?.length ?? 0) === expectedCount;
+  }
+  if (kind === "steps") return (state.draft?.steps?.length ?? 0) === question.interaction.steps.length;
+  return false;
+}
+
+function renderQuestion({ trackView = true } = {}) {
   const question = state.questions[state.currentIndex];
   if (!question) return renderHome();
   const isNewQuestion = state.draft === null;
-  state.draft ??= { value: "", values: [], activeIndex: 0, points: [], steps: [] };
+  state.draft ??= {
+    value: "",
+    values: [],
+    activeIndex: 0,
+    points: [],
+    steps: [],
+    selectedChoice: null,
+    stepOptions: question.interaction?.steps
+      ? shuffled([...question.interaction.steps, ...(question.interaction.distractors ?? [])])
+      : []
+  };
   if (isNewQuestion) state.startedAt = performance.now();
   app.innerHTML = `
     <main class="quiz-page">
@@ -380,13 +384,18 @@ function renderQuestion() {
       <section class="question-meta"><span>${escapeHtml(question.grade)}</span><span>${escapeHtml(question.unitName)}</span></section>
       <section class="question-card">
         <p class="question-kicker">問題 ${state.currentIndex + 1}</p>
-        <h1>${escapeHtml(question.question)}</h1>
+        <h1 tabindex="-1">${escapeHtml(question.question)}</h1>
         <p class="hint-card"><span>ヒント</span>${escapeHtml(hintFor(question))}</p>
       </section>
+      <button class="unknown-link" type="button" data-action="unknown">わからない</button>
       <section class="answer-area">${renderQuestionBody(question)}</section>
+      <footer class="answer-bar"><button class="primary-button" type="button" data-action="confirm" ${answerIsReady(question) ? "" : "disabled"}>${answerIsReady(question) ? "この答えでOK" : rendererType(question) === "choice" ? "答えを選ぼう" : "答えを入力しよう"}</button></footer>
     </main>
   `;
-  track("screen_view", { screen_name: "trial_question", question_type: question.type, question_index: state.currentIndex + 1 });
+  if (trackView) {
+    track("screen_view", { screen_name: "trial_question", question_type: question.type, question_index: state.currentIndex + 1 });
+    requestAnimationFrame(() => document.querySelector(".question-card h1")?.focus({ preventScroll: true }));
+  }
 }
 
 function recordAnswer(question, isCorrect, answer) {
@@ -407,18 +416,16 @@ function renderFeedback(question, isCorrect, answer) {
   app.innerHTML = `
     <main class="feedback-page ${isCorrect ? "is-correct" : "is-wrong"}">
       ${quizHeader()}
+      <section class="feedback-question"><span>${escapeHtml(question.unitName)}</span><p>${escapeHtml(question.question)}</p></section>
       <section class="feedback-card">
-        <div class="feedback-badge" aria-hidden="true">${isCorrect ? "○" : "×"}</div>
-        <p class="feedback-label">${isCorrect ? "いい調子！" : "ここで確認！"}</p>
+        <div class="feedback-badge" aria-hidden="true">${isCorrect ? "✓" : "×"}</div>
         <h1>${isCorrect ? "正解！" : "おしい！"}</h1>
         ${isCorrect ? "" : `<p class="your-answer">あなたの答え：<strong>${displayAnswer(answer)}</strong></p>`}
         <div class="correct-answer">正解 <strong>${displayAnswer(question.answer)}</strong></div>
+        <div class="explanation-card"><p class="explanation-title">考え方</p><p>${escapeHtml(question.explanation)}</p></div>
       </section>
-      <section class="explanation-card">
-        <p class="explanation-title">考え方</p>
-        <p>${escapeHtml(question.explanation)}</p>
-      </section>
-      <button class="primary-button next-button" type="button" data-action="next">${finalQuestion ? "結果を見る" : "次の問題へ"}<span aria-hidden="true">→</span></button>
+      <footer class="answer-bar"><button class="primary-button next-button" type="button" data-action="next">${finalQuestion ? "結果を見る" : "次の問題へ"}</button></footer>
+      <p class="sr-only" role="status">${isCorrect ? "正解です" : `不正解です。正解は${escapeHtml(question.answer)}です`}</p>
     </main>
   `;
   track("screen_view", { screen_name: isCorrect ? "feedback_correct" : "feedback_wrong", question_index: state.currentIndex + 1 });
@@ -429,16 +436,19 @@ function renderResult() {
   const seconds = state.answers.reduce((sum, answer) => sum + answer.elapsedSec, 0);
   const percentage = Math.round((correct / TRIAL_QUESTION_COUNT) * 100);
   const headline = correct === 3 ? "3問クリア！" : correct >= 1 ? "3問、最後までできた！" : "3問チャレンジ完了！";
+  const missedUnits = [...new Set(state.answers.filter((answer) => !answer.isCorrect).map((answer) => answer.unit))];
   app.innerHTML = `
     <main class="result-page">
-      <div class="brand-lockup result-brand"><span class="brand-mark" aria-hidden="true"><i></i><b></b></span><span>サクサク数学</span></div>
+      <div class="brand-lockup result-brand"><img src="./assets/icon.png" alt="" /><span>サクサク数学</span></div>
       <section class="result-hero">
+        <img src="./assets/icon.png" alt="" />
         <p>おつかれさま！</p>
         <h1>${headline}</h1>
         <div class="score-ring"><strong>${correct}</strong><span>/ 3問 正解</span></div>
       </section>
       <section class="result-stats"><div><strong>${percentage}%</strong><span>正答率</span></div><div><strong>${seconds}<small>秒</small></strong><span>かかった時間</span></div><div><strong>${escapeHtml(state.grade)}</strong><span>選んだ学年</span></div></section>
-      <section class="continue-card"><p>Web体験はここまで。</p><h2>アプリなら、もっと<br />自分のペースで解ける。</h2><span>中1〜中3の数学を、1問ずつサクサク復習。</span></section>
+      ${missedUnits.length ? `<section class="focus-card"><p>もう一度見ると伸びるポイント</p><strong>${missedUnits.map(escapeHtml).join("・")}</strong></section>` : `<section class="focus-card success"><p>できたポイント</p><strong>${escapeHtml(state.grade)}の問題を全問クリア！</strong></section>`}
+      <section class="continue-card"><p>Web体験はここまで。</p><h2>アプリなら、もっと自分のペースで解ける。</h2><span>解き直し・学習マップ・毎日の目標も使えます。</span></section>
       <a class="primary-button store-button" data-action="store" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">アプリで続ける <span aria-hidden="true">→</span></a>
       <button class="restart-button" type="button" data-action="restart">別の3問を試す</button>
     </main>
@@ -451,7 +461,8 @@ function submitInput() {
   const question = state.questions[state.currentIndex];
   const answer = state.draft?.value ?? "";
   if (!answer) return;
-  recordAnswer(question, answersMatch(answer, question.answer, question.answerRequirement), answer);
+  const { expectedInput, unit } = inputAnswerSpec(question);
+  recordAnswer(question, answersMatch(answer, expectedInput, question.answerRequirement), `${answer}${unit}`);
 }
 
 function submitTable() {
@@ -479,6 +490,30 @@ function submitSteps() {
   recordAnswer(question, isCorrect, selected.join("§§"));
 }
 
+function submitCurrentAnswer({ unknown = false } = {}) {
+  const question = state.questions[state.currentIndex];
+  if (!question) return;
+  if (unknown) {
+    recordAnswer(question, false, "わからない");
+    return;
+  }
+  if (!answerIsReady(question)) return;
+
+  const kind = rendererType(question);
+  if (kind === "choice") {
+    const answer = question.choices[state.draft.selectedChoice];
+    recordAnswer(question, answersMatch(answer, question.answer, question.answerRequirement), answer);
+  } else if (kind === "input") {
+    submitInput();
+  } else if (kind === "table") {
+    submitTable();
+  } else if (kind === "graph") {
+    submitGraph();
+  } else if (kind === "steps") {
+    submitSteps();
+  }
+}
+
 function updateKeypad(key) {
   const question = state.questions[state.currentIndex];
   const kind = rendererType(question);
@@ -493,7 +528,7 @@ function updateKeypad(key) {
     const value = state.draft.value ?? "";
     state.draft.value = key === "⌫" ? value.slice(0, -1) : value + key;
   }
-  renderQuestion();
+  renderQuestion({ trackView: false });
 }
 
 app.addEventListener("click", (event) => {
@@ -502,6 +537,7 @@ app.addEventListener("click", (event) => {
 
   if (target.dataset.grade) {
     state.grade = target.dataset.grade;
+    track("select_grade", { grade: state.grade });
     renderHome();
     return;
   }
@@ -526,24 +562,26 @@ app.addEventListener("click", (event) => {
     else renderQuestion();
     return;
   }
+  if (target.dataset.action === "confirm") {
+    submitCurrentAnswer();
+    return;
+  }
+  if (target.dataset.action === "unknown") {
+    submitCurrentAnswer({ unknown: true });
+    return;
+  }
   if (target.dataset.choice !== undefined) {
-    const question = state.questions[state.currentIndex];
-    const answer = question.choices[Number(target.dataset.choice)];
-    recordAnswer(question, answersMatch(answer, question.answer, question.answerRequirement), answer);
+    state.draft.selectedChoice = Number(target.dataset.choice);
+    renderQuestion({ trackView: false });
     return;
   }
   if (target.dataset.key !== undefined) {
-    const key = target.dataset.key;
-    if (key === "採点") {
-      const kind = rendererType(state.questions[state.currentIndex]);
-      if (kind === "table") submitTable();
-      else submitInput();
-    } else updateKeypad(key);
+    updateKeypad(target.dataset.key);
     return;
   }
   if (target.dataset.tableField !== undefined) {
     state.draft.activeIndex = Number(target.dataset.tableField);
-    renderQuestion();
+    renderQuestion({ trackView: false });
     return;
   }
   if (target.dataset.graphPoint !== undefined) {
@@ -554,22 +592,19 @@ app.addEventListener("click", (event) => {
     else if (question.type === "graph_point") points.clear(), points.add(point);
     else points.add(point);
     state.draft.points = [...points];
-    if (question.type === "graph_point") submitGraph();
-    else renderQuestion();
+    renderQuestion({ trackView: false });
     return;
   }
   if (target.dataset.stepOption !== undefined) {
     state.draft.steps = [...(state.draft.steps ?? []), target.dataset.stepOption];
-    renderQuestion();
+    renderQuestion({ trackView: false });
     return;
   }
   if (target.dataset.removeStep !== undefined) {
     state.draft.steps.splice(Number(target.dataset.removeStep), 1);
-    renderQuestion();
+    renderQuestion({ trackView: false });
     return;
   }
-  if (target.dataset.action === "confirm-graph") submitGraph();
-  if (target.dataset.action === "confirm-steps") submitSteps();
 });
 
 renderHome();
