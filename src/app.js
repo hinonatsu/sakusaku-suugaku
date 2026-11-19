@@ -3,6 +3,8 @@ import { inputAnswerSpec, normalizeMathText, rendererType } from "./question-val
 
 const APP_STORE_URL =
   "https://apps.apple.com/jp/app/%E3%82%B5%E3%82%AF%E3%82%B5%E3%82%AF%E6%95%B0%E5%AD%A6-%E4%B8%AD%E5%AD%A6%E7%94%9F%E5%90%91%E3%81%91%E3%82%B9%E3%82%AD%E3%83%9E%E6%99%82%E9%96%93%E6%95%B0%E5%AD%A6%E3%82%A2%E3%83%97%E3%83%AA/id6764301338";
+const APP_STORE_BADGE_URL =
+  "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/ja-jp?size=250x83";
 const TRIAL_QUESTION_COUNT = 3;
 const app = document.querySelector("#app");
 const allQuestions = createQuestionPool();
@@ -181,7 +183,10 @@ function renderHome() {
     <main class="landing-page">
       <header class="app-status-card">
         <div class="brand-lockup"><img src="./assets/icon.png" alt="" /><span><strong>サクサク数学</strong><small>Web体験版</small></span></div>
-        <div class="status-pills" aria-label="アプリ体験ステータス"><span>◆ 3問</span><span>♥ 3/3</span></div>
+        <div class="status-pills" aria-label="Web体験版メニュー">
+          <span>◆ 3問</span>
+          <a data-action="store" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">アプリ版 <b aria-hidden="true">→</b></a>
+        </div>
       </header>
       <section class="today-card">
         <div class="today-heading">
@@ -207,10 +212,13 @@ function renderHome() {
         <div class="feature-row"><span>✓ すぐ採点</span><span>↻ 解き直せる</span><span>✦ 解説つき</span></div>
       </section>
       <section class="app-bridge">
-        <img src="./assets/character.png" alt="" />
-        <div><p>続きはアプリで。</p><span>中1〜中3の数学を、毎日少しずつ。</span></div>
-        <a class="text-link" data-action="store" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">App Storeへ</a>
+        <img class="app-bridge-character" src="./assets/character.png" alt="" />
+        <div class="app-bridge-copy"><p>続きはアプリで。</p><span>中1〜中3の数学を、毎日少しずつ。</span></div>
+        <a class="app-store-badge" data-action="store" href="${APP_STORE_URL}" target="_blank" rel="noreferrer" aria-label="サクサク数学をApp Storeで見る">
+          <img src="${APP_STORE_BADGE_URL}" alt="App Storeからダウンロード" />
+        </a>
       </section>
+      <p class="apple-legal">AppleおよびAppleロゴは、米国およびその他の国で登録されたApple Inc.の商標です。App StoreはApple Inc.のサービスマークです。</p>
     </main>
   `;
   track("screen_view", { screen_name: "home" });
@@ -448,9 +456,16 @@ function renderResult() {
       </section>
       <section class="result-stats"><div><strong>${percentage}%</strong><span>正答率</span></div><div><strong>${seconds}<small>秒</small></strong><span>かかった時間</span></div><div><strong>${escapeHtml(state.grade)}</strong><span>選んだ学年</span></div></section>
       ${missedUnits.length ? `<section class="focus-card"><p>もう一度見ると伸びるポイント</p><strong>${missedUnits.map(escapeHtml).join("・")}</strong></section>` : `<section class="focus-card success"><p>できたポイント</p><strong>${escapeHtml(state.grade)}の問題を全問クリア！</strong></section>`}
-      <section class="continue-card"><p>Web体験はここまで。</p><h2>アプリなら、もっと自分のペースで解ける。</h2><span>解き直し・学習マップ・毎日の目標も使えます。</span></section>
-      <a class="primary-button store-button" data-action="store" href="${APP_STORE_URL}" target="_blank" rel="noreferrer">アプリで続ける <span aria-hidden="true">→</span></a>
+      <section class="continue-card">
+        <p>Web体験はここまで。</p>
+        <h2>アプリで、今日の学習を続けよう。</h2>
+        <span>解き直し・学習マップ・毎日の目標も使えます。</span>
+        <a class="app-store-badge result-store-badge" data-action="store" href="${APP_STORE_URL}" target="_blank" rel="noreferrer" aria-label="サクサク数学をApp Storeで見る">
+          <img src="${APP_STORE_BADGE_URL}" alt="App Storeからダウンロード" />
+        </a>
+      </section>
       <button class="restart-button" type="button" data-action="restart">別の3問を試す</button>
+      <p class="apple-legal result-legal">AppleおよびAppleロゴは、米国およびその他の国で登録されたApple Inc.の商標です。App StoreはApple Inc.のサービスマークです。</p>
     </main>
   `;
   track("complete_trial", { correct_count: correct, total_seconds: seconds, grade: state.grade });

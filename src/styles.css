@@ -51,9 +51,11 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--honey); outline
 .brand-lockup strong { color: var(--text); font-size: 16px; font-weight: 950; white-space: nowrap; }
 .brand-lockup small { margin-top: 2px; color: var(--text-secondary); font-size: 11px; font-weight: 800; }
 .status-pills { display: flex; gap: 6px; }
-.status-pills span { padding: 7px 9px; border-radius: 999px; color: var(--text); font-size: 11px; font-weight: 950; white-space: nowrap; }
+.status-pills span, .status-pills a { padding: 7px 9px; border-radius: 999px; color: var(--text); font-size: 11px; font-weight: 950; white-space: nowrap; }
 .status-pills span:first-child { background: #ddf7fb; color: #147c96; }
-.status-pills span:last-child { background: #fee9eb; color: var(--danger); }
+.status-pills a { background: var(--primary); color: #fff; text-decoration: none; box-shadow: 0 3px 0 var(--primary-dark); }
+.status-pills a:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--primary-dark); }
+.status-pills b { font-size: 12px; }
 
 .today-card { margin-top: 16px; padding: 22px 18px 18px; border: 2px solid #aed2ff; border-radius: 28px; background: linear-gradient(145deg, #f9fcff 0%, #e4f5fb 58%, #edf8ee 100%); box-shadow: var(--shadow); }
 .today-heading { display: grid; grid-template-columns: 48px minmax(0, 1fr) 70px; align-items: start; gap: 12px; }
@@ -92,11 +94,16 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--honey); outline
 .feature-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
 .feature-row span { padding: 8px 4px; border-radius: 12px; background: var(--background); color: var(--text-secondary); font-size: 10px; font-weight: 900; text-align: center; }
 
-.app-bridge { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 10px; margin-top: 18px; padding: 14px; border-radius: 20px; background: #fff4df; }
-.app-bridge img { width: 48px; height: 48px; object-fit: contain; }
+.app-bridge { display: grid; grid-template-columns: 52px minmax(0, 1fr); align-items: center; gap: 10px 12px; margin-top: 18px; padding: 16px; border: 2px solid #f4d294; border-radius: 22px; background: #fff4df; box-shadow: 0 8px 22px rgb(105 75 31 / 8%); }
+.app-bridge-character { width: 52px; height: 52px; object-fit: contain; }
+.app-bridge-copy { min-width: 0; }
 .app-bridge p { margin: 0; font-size: 14px; font-weight: 950; }
 .app-bridge span { display: block; margin-top: 3px; color: var(--text-secondary); font-size: 11px; font-weight: 700; }
-.text-link { color: var(--primary); font-size: 12px; font-weight: 950; white-space: nowrap; }
+.app-store-badge { display: inline-flex; width: fit-content; min-height: 40px; grid-column: 2; border-radius: 8px; transition: transform 120ms ease, filter 120ms ease; }
+.app-store-badge:hover { filter: brightness(1.08); }
+.app-store-badge:active { transform: scale(0.98); }
+.app-store-badge img { display: block; width: 136px; height: 50px; object-fit: contain; }
+.apple-legal { margin: 11px 8px 0; color: #7d93a6; font-size: 8px; font-weight: 600; line-height: 1.5; text-align: center; }
 
 .quiz-page, .feedback-page { display: flex; min-height: 100svh; flex-direction: column; padding-top: max(10px, env(safe-area-inset-top)); }
 .quiz-header { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 9px; padding: 0 16px; }
@@ -198,8 +205,10 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--honey); outline
 .continue-card { background: var(--surface); box-shadow: var(--shadow); }
 .continue-card h2 { margin: 0; color: var(--text); font-size: 19px; line-height: 1.45; }
 .continue-card span { display: block; margin-top: 8px; color: var(--text-secondary); font-size: 12px; font-weight: 700; line-height: 1.5; }
-.store-button { text-decoration: none; }
+.result-store-badge { display: flex; width: 100%; min-height: 66px; margin-top: 15px; align-items: center; justify-content: center; grid-column: auto; border: 2px solid #bed3ff; border-radius: 17px; background: var(--primary-soft); }
+.result-store-badge img { width: 158px; height: 58px; }
 .restart-button { justify-self: center; padding: 9px; background: transparent; color: var(--primary); cursor: pointer; font-size: 13px; font-weight: 900; text-decoration: underline; }
+.result-legal { margin-top: -8px; }
 
 @media (min-width: 521px) {
   body { padding: 20px; }
@@ -210,6 +219,7 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--honey); outline
   .landing-page { padding-top: 10px; }
   .app-status-card { padding: 8px 11px; }
   .brand-lockup img { width: 38px; height: 38px; }
+  .status-pills span, .status-pills a { padding: 6px 8px; font-size: 10px; }
   .today-card { margin-top: 10px; padding: 15px; }
   .today-heading h1 { font-size: 24px; }
   .today-heading { grid-template-columns: 40px 1fr 58px; }
@@ -222,6 +232,7 @@ button:focus-visible, a:focus-visible { outline: 4px solid var(--honey); outline
   .quest-node { width: 50px; height: 50px; }
   .quest-path img { width: 45px; left: calc(50% - 85px); }
   .app-bridge { margin-top: 12px; }
+  .app-store-badge img { width: 125px; height: 46px; }
   .question-card { padding-top: 15px; padding-bottom: 11px; }
   .question-card h1 { font-size: 20px; line-height: 1.4; }
   .hint-card { margin-top: 9px; }
